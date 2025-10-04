@@ -13,6 +13,14 @@ app.get("/",(req,res)=>{
     res.render("index")
 });
 
+app.get("/profile/:username",(req,res)=>{
+    
+    res.send(req.params.username)
+})
+app.get("/profile/:username/:age",(req,res)=>{
+    
+    res.send(req.params)
+})
 app.listen(port,()=>{
     console.log(`Example app listening on port ${port}`)
 })
