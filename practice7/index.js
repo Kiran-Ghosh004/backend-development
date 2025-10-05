@@ -18,6 +18,18 @@ app.get('/', (req, res) => {
     
 }
 );
+app.get('/file/:filename', (req, res) => {
+
+    fs.readFile(`./files/${req.params.filename}.txt`, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(404).send('File not found');
+        }
+        res.render("show",{title:req.params.filename,details:data});
+    });             
+        
+    
+}
+);
 app.post('/create', (req, res) => {
     fs.writeFile(`./files/${req.body.title.split(' ').join('')}.txt`, req.body.details, (err) => {
         res.redirect('/');

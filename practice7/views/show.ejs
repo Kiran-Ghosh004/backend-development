@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Styled Note</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 flex flex-col items-center justify-center min-h-screen p-4 gap-6">
+
+  <!-- Title outside the card -->
+  <h1 class="text-5xl font-extrabold text-blue-400 text-center tracking-wide uppercase drop-shadow-lg">
+    <%= title %>
+  </h1>
+
+  <!-- Content inside the card -->
+  <div class="max-w-3xl w-full bg-zinc-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-zinc-700 hover:shadow-blue-900/40 transition duration-300 p-10">
+    <p class="text-gray-300 text-lg leading-relaxed text-justify md:text-xl">
+      <%= details %>
+    </p>
+  </div>
+
+</body>
+
+</html>
