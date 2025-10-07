@@ -29,22 +29,23 @@ app.get('/file/:filename', (req, res) => {
 
 // Edit file page
 app.get('/edit/:filename', (req, res) => {
-    const filePath = path.join(__dirname, 'files', `${req.params.filename}.txt`);
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) return res.status(404).send('File not found');
-        res.render('edit', { title: req.params.filename, details: data });
-    });
+    res.render('edit', { title: req.params.filename });
+})
+
+app.post('/edit', (req, res) => {
+  const oldPath = `./files/${req.body.oldtitle}.txt`;
+  const newPath = `./files/${req.body.title}.txt`;
+
+  fs.rename(oldPath, newPath, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error renaming file');
+    }
+    res.redirect('/'); // redirects to homepage using GET — no resubmission warning
+  });
 });
 
-// Update file (PUT using hidden method override)
-app.post('/edit/:filename', (req, res) => {
-    const filePath = path.join(__dirname, 'files', `${req.params.filename}.txt`);
-    fs.writeFile(filePath, req.body.details, (err) => {
-        if (err) return res.status(500).send('Error saving file');
-        res.redirect(`/file/${req.params.filename}`);
-    });
-});
-
+    
 // Create new file
 app.post('/create', (req, res) => {
     const filename = req.body.title.split(' ').join('') + '.txt';
