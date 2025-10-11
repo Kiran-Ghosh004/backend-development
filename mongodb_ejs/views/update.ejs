@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update User</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white p-6">
+
+  <div class="w-full max-w-md bg-gray-900/70 backdrop-blur-lg border border-gray-800 rounded-2xl shadow-lg p-8">
+    <h2 class="text-2xl font-semibold text-center mb-6 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+      Update User
+    </h2>
+
+    <form action="/edit/<%= user._id %>" method="POST" class="space-y-5">
+      <input type="text" name="name" value="<%= user.name %>" required
+        class="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-600 outline-none placeholder-gray-500" />
+
+      <input type="text" name="username" value="<%= user.username %>" required
+        class="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-600 outline-none placeholder-gray-500" />
+
+      <input type="email" name="email" value="<%= user.email %>" required
+        class="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-600 outline-none placeholder-gray-500" />
+
+      <input type="password" name="password" value="<%= user.password %>" required
+        class="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-600 outline-none placeholder-gray-500" />
+
+      <button type="submit"
+        class="w-full py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-lg font-semibold tracking-wide shadow-lg transition-all duration-300">
+        Update User
+      </button>
+    </form>
+
+    <div class="text-center mt-4">
+      <a href="/read" class="text-gray-400 hover:text-white transition-all">⬅ Back to Users</a>
+    </div>
+  </div>
+
+</body>
+</html>
