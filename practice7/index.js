@@ -8,6 +8,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// create files
+app.post('/create', (req, res) => {
+    const filename = req.body.title.split(' ').join('') + '.txt';
+    const filePath = path.join(__dirname, 'files', filename);
+    fs.writeFile(filePath, req.body.details, (err) => {
+        if (err) return res.status(500).send('Error creating file');
+        res.redirect('/');
+    });
+});
+
 // Home page — list all files
 app.get('/', (req, res) => {
     fs.readdir('./files', (err, files) => {
@@ -46,14 +56,7 @@ app.post('/edit', (req, res) => {
 });
 
     
-// Create new file
-app.post('/create', (req, res) => {
-    const filename = req.body.title.split(' ').join('') + '.txt';
-    const filePath = path.join(__dirname, 'files', filename);
-    fs.writeFile(filePath, req.body.details, (err) => {
-        if (err) return res.status(500).send('Error creating file');
-        res.redirect('/');
-    });
-});
+
+
 
 app.listen(3000, () => console.log('Server running at http://localhost:3000'));

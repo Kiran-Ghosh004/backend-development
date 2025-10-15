@@ -45,6 +45,7 @@ app.get('/update/:id', async (req, res) => {
   // res.send(users);
   res.render('update',{user});
 });
+
 app.post('/edit/:id', async (req, res) => {
   let {name,username,email,password}=req.body
   let user= await userModel.findOneAndUpdate({_id:req.params.id},{name,username,email,password},{new:true});

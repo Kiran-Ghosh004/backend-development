@@ -17,6 +17,7 @@ app.get('/create', async(req,res)=>{
     res.send(createUser);
     console.log('User created');
 });
+
 app.get('/update', async(req,res)=>{
     let updateUser= await userModel.findOneAndUpdate({
         username:"kiranghosh123"
