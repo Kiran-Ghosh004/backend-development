@@ -7,7 +7,56 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body>
-    <div class="w-full min-h-screen bg-zinc-900"></div>
-    
+    <div class="w-full min-h-screen bg-zinc-900 flex items-center justify-center">
+        
+        <form class="bg-zinc-800 p-8 rounded-2xl w-full max-w-sm shadow-xl space-y-5" 
+              action="/register" method="post">
+
+            <h2 class="text-white text-2xl font-semibold text-center mb-4">
+                Registration Form
+            </h2>
+
+            <div>
+                <label class="text-gray-300 text-sm">Name</label>
+                <input name="name" type="text" 
+                       class="w-full mt-1 px-3 py-2 rounded-lg bg-zinc-700 text-white 
+                              outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="text-gray-300 text-sm">Username</label>
+                <input name="username" type="text" 
+                       class="w-full mt-1 px-3 py-2 rounded-lg bg-zinc-700 text-white 
+                              outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="text-gray-300 text-sm">Age</label>
+                <input name="age" type="number" 
+                       class="w-full mt-1 px-3 py-2 rounded-lg bg-zinc-700 text-white 
+                              outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="text-gray-300 text-sm">Email</label>
+                <input name="email" type="email" 
+                       class="w-full mt-1 px-3 py-2 rounded-lg bg-zinc-700 text-white 
+                              outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="text-gray-300 text-sm">Password</label>
+                <input name="password" type="password" 
+                       class="w-full mt-1 px-3 py-2 rounded-lg bg-zinc-700 text-white 
+                              outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                Submit
+            </button>
+        </form>
+
+    </div>
 </body>
 </html>
