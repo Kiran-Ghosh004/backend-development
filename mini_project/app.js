@@ -20,9 +20,13 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
   res.render('login');
 });
+
+
 app.get('/profile', isLoggedIn, async (req, res) => {
-    console.log(req.user);
-    res.send(req.user)
+   const user= await userModel.findOne({email:req.user.email})
+       
+
+    res.render('profile',{user})
 });
     
 
@@ -59,7 +63,7 @@ app.post('/register', async (req, res) => {
         // Store token in cookies
         res.cookie('token', token, { httpOnly: true });
 
-        res.status(201).send('User registered successfully');
+        res.status(201).send('User registered successfully login now');
 
     } catch (err) {
         console.error(err);
@@ -93,7 +97,7 @@ app.post('/login', async (req, res) => {
         // 4. Store token in cookie
         res.cookie("token", token, { httpOnly: true });
 
-        res.send("Login successful");
+        res.redirect("profile");
 
     } catch (err) {
         console.error(err);
