@@ -22,12 +22,50 @@ app.get('/login', (req, res) => {
 });
 
 
-app.get('/profile', isLoggedIn, async (req, res) => {
-   const user= await userModel.findOne({email:req.user.email})
-       
+app.post('/post', isLoggedIn, async (req, res) => {
+    try {
+        const { title, content } = req.body;
 
-    res.render('profile',{user})
+        // Validation
+        if (!title || !content || title.trim() === "" || content.trim() === "") {
+            return res.status(400).send("Title and content cannot be empty");
+        }
+
+        const user = await userModel.findOne({ email: req.user.email });
+
+        const post = await postModel.create({
+            user: user._id,
+            title: title.trim(),
+            content: content.trim(),
+        });
+
+        user.posts.push(post._id);
+        await user.save();
+
+        res.redirect('/profile');
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.message);
+    }
 });
+
+
+
+app.get('/profile', isLoggedIn, async (req, res) => {
+    try {
+        const user = await userModel
+            .findOne({ email: req.user.email })
+            .populate('posts');  // <-- important
+
+        res.render('profile', { user });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.message);
+    }
+});
+
     
 
 app.post('/register', async (req, res) => {
