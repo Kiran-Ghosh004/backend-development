@@ -50,6 +50,21 @@ app.post('/post', isLoggedIn, async (req, res) => {
     }
 });
 
+app.get('/allposts', isLoggedIn, async (req, res) => {
+    try {
+        const posts = await postModel
+            .find()
+            .populate("user", "name username email") // show user info
+            .sort({ createdAt: -1 }); // newest first
+
+        res.render("allposts", { posts });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.message);
+    }
+});
+
 
 
 app.get('/profile', isLoggedIn, async (req, res) => {
