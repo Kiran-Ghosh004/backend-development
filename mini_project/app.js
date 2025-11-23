@@ -1,3 +1,6 @@
+// -----------------------
+// 1. IMPORTS
+// -----------------------
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -8,17 +11,127 @@ const bcrypt = require('bcrypt');
 const jwt =  require('jsonwebtoken');
 
 
+// -----------------------
+// 2. BASIC APP SETUP
+// -----------------------
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
+// -----------------------
+// 3. MIDDLEWARE (Written before routes)
+// -----------------------
+function isLoggedIn(req,res,next){
+    if(req.cookies.token===""){
+        res.redirect('/login');
+    }
+    else{
+        let data=jwt.verify(req.cookies.token, 'kiransecretkey');
+        req.user=data;       
+        next();
+    }
+}
+
+
+// -----------------------
+// 4. BASIC VIEW ROUTES (Written first)
+// -----------------------
 app.get('/', (req, res) => {
   res.render('index');
 });
+
 app.get('/login', (req, res) => {
   res.render('login');
+});
+
+
+// -----------------------
+// 5. AUTH ROUTES (Register & Login)
+// -----------------------
+app.post('/register', async (req, res) => {
+    try {
+        const { name, username, age, email, password } = req.body;
+
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).send('User already exists');
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new userModel({
+            name,
+            username,
+            age,
+            email,
+            password: hashedPassword,
+        });
+
+        await newUser.save();
+
+        let token = jwt.sign(
+            { email: newUser.email, userid: newUser._id },
+            'kiransecretkey'
+        );
+
+        res.cookie('token', token, { httpOnly: true });
+
+        res.status(201).send('User registered successfully login now');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err.message);
+    }
+});
+
+
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(400).send('User not found');
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).send('Incorrect password');
+        }
+
+        const token = jwt.sign(
+            { email: user.email, userid: user._id },
+            "kiransecretkey"
+        );
+
+        res.cookie("token", token, { httpOnly: true });
+
+        res.redirect("profile");
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server error");
+    }
+});
+
+
+// -----------------------
+// 6. PROFILE & POSTS ROUTES
+// -----------------------
+app.get('/profile', isLoggedIn, async (req, res) => {
+    try {
+        const user = await userModel
+            .findOne({ email: req.user.email })
+            .populate('posts');
+
+        res.render('profile', { user });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.message);
+    }
 });
 
 
@@ -26,7 +139,6 @@ app.post('/post', isLoggedIn, async (req, res) => {
     try {
         const { title, content } = req.body;
 
-        // Validation
         if (!title || !content || title.trim() === "" || content.trim() === "") {
             return res.status(400).send("Title and content cannot be empty");
         }
@@ -50,12 +162,13 @@ app.post('/post', isLoggedIn, async (req, res) => {
     }
 });
 
+
 app.get('/allposts', isLoggedIn, async (req, res) => {
     try {
         const posts = await postModel
             .find()
-            .populate("user", "name username email") // show user info
-            .sort({ createdAt: -1 }); // newest first
+            .populate("user", "name username email")
+            .sort({ createdAt: -1 });
 
         res.render("allposts", { posts });
 
@@ -66,122 +179,18 @@ app.get('/allposts', isLoggedIn, async (req, res) => {
 });
 
 
-
-app.get('/profile', isLoggedIn, async (req, res) => {
-    try {
-        const user = await userModel
-            .findOne({ email: req.user.email })
-            .populate('posts');  // <-- important
-
-        res.render('profile', { user });
-
-    } catch (err) {
-        console.log(err);
-        res.status(500).send(err.message);
-    }
-});
-
-    
-
-app.post('/register', async (req, res) => {
-    try {
-        const { name, username, age, email, password } = req.body;
-
-        // Check if user already exists
-        const existingUser = await userModel.findOne({ email });
-        if (existingUser) {
-            return res.status(400).send('User already exists');
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create user
-        const newUser = new userModel({
-            name,
-            username,
-            age,
-            email,
-            password: hashedPassword,
-        });
-
-        await newUser.save();
-
-        // Create JWT token using newUser id
-        let token = jwt.sign(
-            { email: newUser.email, userid: newUser._id },
-            'kiransecretkey'
-        );
-
-        // Store token in cookies
-        res.cookie('token', token, { httpOnly: true });
-
-        res.status(201).send('User registered successfully login now');
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err.message);
-    }
-});
-
-
-app.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // 1. Check if user exists
-        const user = await userModel.findOne({ email });
-        if (!user) {
-            return res.status(400).send('User not found');
-        }
-
-        // 2. Compare password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).send('Incorrect password');
-        }
-
-        // 3. Create token
-        const token = jwt.sign(
-            { email: user.email, userid: user._id },
-            "kiransecretkey"
-        );
-
-        // 4. Store token in cookie
-        res.cookie("token", token, { httpOnly: true });
-
-        res.redirect("profile");
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server error");
-    }
-});
-
+// -----------------------
+// 7. LOGOUT ROUTE
+// -----------------------
 app.get('/logout', (req, res) => {
     res.cookie('token',"");
     res.redirect('login');
 });
 
-function isLoggedIn(req,res,next){
-    if(req.cookies.token===""){
-        res.redirect('/login');
-    }
-    else{
-        let data=jwt.verify(req.cookies.token, 'kiransecretkey');
-        req.user=data;
-            
-        next();
-    }
-}
 
-
-
-
-
-
-
-
+// -----------------------
+// 8. SERVER LISTENER (Always last)
+// -----------------------
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
