@@ -30,9 +30,11 @@
 
                 <p class="text-gray-300 mt-2"><%= post.content %></p>
 
-                <div class="mt-4 text-blue-400 text-sm">
-                    ❤️ <%= post.likes?.length || 0 %> Likes
-                </div>
+                <a href="/like/<%= post._id %>" 
+   class="mt-4 inline-block text-blue-400 hover:underline text-sm">
+    ❤️ <%= post.likes?.length || 0 %> Likes
+</a>
+
 
             </div>
         <% }) %>

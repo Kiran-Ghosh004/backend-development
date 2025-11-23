@@ -135,32 +135,34 @@ app.get('/profile', isLoggedIn, async (req, res) => {
 });
 
 
-app.post('/post', isLoggedIn, async (req, res) => {
+app.post("/edit/:id", isLoggedIn, async (req, res) => {
     try {
         const { title, content } = req.body;
 
-        if (!title || !content || title.trim() === "" || content.trim() === "") {
-            return res.status(400).send("Title and content cannot be empty");
+        if (!title.trim() || !content.trim()) {
+            return res.status(400).send("Title and content required");
         }
 
-        const user = await userModel.findOne({ email: req.user.email });
+        const post = await postModel.findById(req.params.id);
 
-        const post = await postModel.create({
-            user: user._id,
-            title: title.trim(),
-            content: content.trim(),
-        });
+        if (!post) return res.status(404).send("Post not found");
 
-        user.posts.push(post._id);
-        await user.save();
+        if (post.user.toString() !== req.user.userid) {
+            return res.status(403).send("Unauthorized");
+        }
 
-        res.redirect('/profile');
+        post.title = title.trim();
+        post.content = content.trim();
+        await post.save();
+
+        res.redirect("/profile");
 
     } catch (err) {
         console.log(err);
         res.status(500).send(err.message);
     }
 });
+
 
 
 app.get('/allposts', isLoggedIn, async (req, res) => {
@@ -177,6 +179,35 @@ app.get('/allposts', isLoggedIn, async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
+
+app.get("/like/:id", isLoggedIn, async (req, res) => {
+    try {
+        const post = await postModel.findById(req.params.id);
+
+        if (!post) return res.status(404).send("Post not found");
+
+        const userId = req.user.userid;
+
+        // Toggle like/unlike
+        if (post.likes.includes(userId)) {
+            post.likes.pull(userId);
+        } else {
+            post.likes.push(userId);
+        }
+
+        await post.save();
+
+        // Safe redirect
+        res.redirect(req.get("referer"));
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.message);
+    }
+});
+
+
 
 
 // -----------------------
