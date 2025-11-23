@@ -34,15 +34,30 @@ function isLoggedIn(req,res,next){
     }
 }
 
+function redirectIfLoggedIn(req, res, next) {
+    const token = req.cookies.token;
+
+    if (token) {
+        try {
+            jwt.verify(token, 'kiransecretkey');
+            return res.redirect('/profile');
+        } catch (err) {
+            res.clearCookie("token");
+        }
+    }
+    next();
+}
+
+
 
 // -----------------------
 // 4. BASIC VIEW ROUTES (Written first)
 // -----------------------
-app.get('/', (req, res) => {
+app.get('/',redirectIfLoggedIn, (req, res) => {
   res.render('index');
 });
 
-app.get('/login', (req, res) => {
+app.get('/login',redirectIfLoggedIn, (req, res) => {
   res.render('login');
 });
 
@@ -50,7 +65,7 @@ app.get('/login', (req, res) => {
 // -----------------------
 // 5. AUTH ROUTES (Register & Login)
 // -----------------------
-app.post('/register', async (req, res) => {
+app.post('/register',redirectIfLoggedIn, async (req, res) => {
     try {
         const { name, username, age, email, password } = req.body;
 
@@ -87,7 +102,7 @@ app.post('/register', async (req, res) => {
 });
 
 
-app.post('/login', async (req, res) => {
+app.post('/login',redirectIfLoggedIn, async (req, res) => {
     try {
         const { email, password } = req.body;
 
